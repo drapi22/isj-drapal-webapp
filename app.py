@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 def db():
-    conn = sqlite3.connect("treneri.db")
+    conn = sqlite3.connect("kurzy.db")
     return conn
 
 
