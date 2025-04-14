@@ -54,7 +54,7 @@ def zobraz_trenerov():
     vystup += '<a href="/">Späť</a>'
     return vystup
 
-    @app.route('/registracia', methods=['GET'])
+@app.route('/registracia', methods=['GET'])
 def registracia_form():
     return '''
         <h2>Registrácia trénera</h2>
