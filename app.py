@@ -1,28 +1,19 @@
 import hashlib
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 import sqlite3
 
 app = Flask(__name__)
 
 
 def db():
-    conn = sqlite3.connect("kurzy.db")
+    conn = sqlite3.connect("treneri.db")
     return conn
 
 
 @app.route('/')
 def index():
-    return '''
-    <h1>Výber z databázy</h1>
-        <a href="/treneri-kurzy"><button>Zobraz všetkých trénerov a ich kurzy</button></a>
-        <a href="/kurzy"><button>Zobraz všetky kurzy</button></a>
-        <a href="/miesta"><button>Zobraz všetky miesta</button></a>
-        <a href="/maximalna-kapacita-p"><button>Výpis súčtu maximálnej kapacity všetkých kurzov, ktoré začínajú na písmeno P</button></a>
-        <a href="/registracia"><button>Registruj trénera</button></a>
-        <a href="/pridaj_kurz"><button>Pridaj kurz</button></a>
-        <hr>
-    '''
+    return render_template("index.html")
 
 
 @app.route('/treneri-kurzy')
@@ -32,12 +23,7 @@ def treneri_kurzy():
     cursor.execute("SELECT * FROM VSETCI_TRENERI_A_ICH_KURZY")
     kurzy1 = cursor.fetchall()
     conn.close()
-
-    vystup = "<h2> Zoznam trénerov a ich kurzy: </h2>"
-    for trener in kurzy1:
-        vystup += f"<p> {trener} </p>"
-    vystup += '<a href="/">Späť</a>'
-    return vystup
+    return render_template("kurzy-treneri.html", kurzy1=kurzy1)
 
 
 @app.route('/kurzy')
@@ -47,11 +33,7 @@ def kurzy():
     cursor.execute("SELECT * FROM Kurzy")
     kurzy2 = cursor.fetchall()
     conn.close()
-    vystup = "<h2> Zoznam vsetkych kurzzov: </h2>"
-    for kurz in kurzy2:
-        vystup += f"<p> {kurz} </p>"
-    vystup += '<a href="/">Späť</a>'
-    return vystup
+    return render_template("kurzy.html", kurzy2=kurzy2)
 
 
 @app.route("/miesta")
@@ -61,11 +43,7 @@ def miesta():
     cursor.execute("SELECT Nazov_miesta FROM Miesta")
     miesta1 = cursor.fetchall()
     conn.close()
-    vystup = "<h2> Zoznam vsetkych miest: </h2>"
-    for miesto in miesta1:
-        vystup += f"<p> {miesto} </p>"
-    vystup += '<a href="/">Späť</a>'
-    return vystup
+    return render_template("miesta.html", miesta1=miesta1)
 
 
 @app.route("/maximalna-kapacita-p")
@@ -75,37 +53,15 @@ def kapacita_p():
     cursor.execute("SELECT sum(Max_pocet_ucastnikov) AS Kapacita FROM Kurzy WHERE Nazov_kurzu LIKE 'P%';")
     kapacita_miesta = cursor.fetchall()
     conn.close()
-    vystup = "<h2> Kapacita miest, ktore sa zacinaju na P: </h2>"
-    for kapacita in kapacita_miesta:
-        vystup += f"<p> {kapacita} </p>"
-    vystup += '<a href="/">Späť</a>'
-    return vystup
+    return render_template("maximalna-kapacita-p.html", kapacita_miesta=kapacita_miesta)
 
 
-@app.route("/registracia", methods=['GET'])
+@app.route("/registracia-trenera", methods=['GET'])
 def registracia_form():
-    return '''
-    <h2>Registrácia trénera</h2>
-    <form action="/registracia" method="post">
-    <label>Meno:</label><br>
-    <input type="text" name="meno" required><br><br>
-    <label>Priezvisko:</label><br>
-    <input type="text" name="priezvisko" required><br><br>
-    <label>Špecializácia:</label><br>
-    <input type="text" name="specializacia" required><br><br>
-    <label>Telefón:</label><br>
-    <input type="text" name="telefon" required><br><br>
-    <label>Heslo:</label><br>
-    <input type="password" name="heslo" required><br><br>
-
-    <button type="submit">Registrovať</button>
-    </form>
-    <hr>
-    <a href="/">Späť</a>
-    '''
+    return render_template("registracia-trenera.html")
 
 
-@app.route("/registracia", methods=['POST'])
+@app.route("/registracia-trenera", methods=['GET', 'POST'])
 def registracia_trenera():
     meno = request.form['meno']
     priezvisko = request.form['priezvisko']
@@ -121,34 +77,12 @@ def registracia_trenera():
     conn.commit()
     conn.close()
 
-    return '''
-    <h2>Tréner bol úspešne zaregistrovaný!</h2>
-    <hr>
-    <a href="/">Späť</a>
-    '''
+    return render_template("success.html")
 
 
 @app.route("/pridaj_kurz", methods=['GET'])
 def pridat_kurz_form():
-    return '''
-     <h2>Pridaj Kurz</h2>
-    <form action="/pridaj_kurz" method="post">
-    <label>Názov kurzu:</label><br>
-    <input type="text" name="nazov" required><br><br>
-    <label>Typ Športu:</label><br>
-    <input type="text" name="typ_sportu" required><br><br>
-    <label>Maximálny počet účastníkov:</label><br>
-    <input type="text" name="max_ucastnici" required><br><br>
-    <label>ID trénera:</label><br>
-    <input type="text" name="id_trenera" required><br><br>
-    <label>ID nového kurzu:</label><br>
-    <input type="text" name="id_kurzu" required><br><br>
-
-    <button type="submit">Pridať kurz</button>
-    </form>
-    <hr>
-    <a href="/">Späť</a>
-    '''
+    return render_template("pridaj_kurz.html")
 
 
 def sifrovanie(text):
@@ -180,11 +114,7 @@ def pridaj_kurz():
     conn.commit()
     conn.close()
 
-    return '''
-    <h2>Kurz bol úspešne pridaný!</h2>
-    <hr>
-    <a href="/">Späť</a>
-    '''
+    return render_template("success_kurz.html")
 
 
 if __name__ == '__main__':

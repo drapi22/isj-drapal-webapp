@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kurzy</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='main.css') }}">
+</head>
+
+<body>
+    <h2> Kapacita miest, ktoré sa začínajú na P: </h2>
+
+   {% for kapacita in kapacita_miesta %}
+        <p>{{ kapacita }}</p>
+    {% endfor %}
+
+    <a href="/">Späť</a>
+</body>
+</html>

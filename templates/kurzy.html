@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurzy</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='main.css') }}">
+</head>
+
+<body>
+    <h2> Zoznam všetkých kurzov: </h2>
+
+   {% for kurzy in kurzy2 %}
+        <p>{{ kurzy }}</p>
+    {% endfor %}
+
+    <a href="/">Späť</a>
+</body>
+</html>
